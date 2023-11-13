@@ -13,9 +13,14 @@ import {
 import { Signup } from "../components";
 import { useFormik } from "formik";
 import { loginFormValidationSchema } from "../schemas";
+import { userAtom, isLoggedInAtom } from "../store";
+import { useSetAtom } from "jotai";
 
 const Login = () => {
   const isDesktop = useMediaQuery("(min-width:800px)");
+
+  const setUser = useSetAtom(userAtom);
+  const setIsLoggedIn = useSetAtom(isLoggedInAtom);
 
   const formik = useFormik({
     initialValues: {
@@ -23,8 +28,24 @@ const Login = () => {
       password: "",
     },
     validationSchema: loginFormValidationSchema,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+    onSubmit: async (values) => {
+      try {
+        const res = await fetch("http://localhost:8080/api/users/login", {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(values)
+        })
+        const data = await res.json();
+        console.log(data);
+        localStorage.setItem("token", data.token);
+        setUser(data.user);
+        setIsLoggedIn(true);
+      } catch (err) {
+        alert(err.message);
+      }
     },
   });
   return (
@@ -32,7 +53,7 @@ const Login = () => {
       container
       justifyContent="center"
       alignItems="center"
-      sx={{ width: "100vw", bgcolor: "#e8f6f1", minHeight: "100vh" }}
+      sx={{ width: "100vw", bgcolor: "#e8f6f1", minHeight: "100vh", maxWidth: "100%" }}
     >
       <Container maxWidth="md" sx={{ minWidth: 450 }}>
         <Grid
@@ -40,7 +61,7 @@ const Login = () => {
           justifyContent="space-between"
           alignItems="center"
           gap="1rem"
-          sx={{ flexDirection: isDesktop ? "row" : "column" }}
+          sx={{ flexDirection: isDesktop ? "row" : "column", p: 2 }}
         >
           <Box sx={{ flex: 1, width: "100%", maxWidth: 400 }}>
             <Box

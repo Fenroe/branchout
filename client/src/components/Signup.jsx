@@ -28,11 +28,16 @@ const Signup = () => {
       alert(JSON.stringify(values, null, 2));
     },
   });
+
+  const handleOpenDialog = () => {
+    formik.resetForm();
+    setModalIsOpen(true);
+  }
   return (
     <>
       <Button
         variant="contained"
-        onClick={() => setModalIsOpen(true)}
+        onClick={handleOpenDialog}
         disableRipple
         color="secondary"
       >
